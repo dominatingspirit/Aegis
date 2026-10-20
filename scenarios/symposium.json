@@ -1,0 +1,34 @@
+{
+  "scenarioId": "symposium",
+  "name": "Tech Symposium 2026",
+  "description": "Flagship DTU Tech Symposium with autonomous multi-agent coordination across venue, AV logistics, and keynote speaker tracks.",
+  "maxDeadline": 24,
+  "maxBudget": 10000.0,
+  "resources": [
+    {
+      "id": "main_hall",
+      "name": "Auditorium Main Hall",
+      "capacity": 1
+    },
+    {
+      "id": "tech_crew",
+      "name": "AV & Rigging Technical Crew",
+      "capacity": 1
+    },
+    {
+      "id": "security_team",
+      "name": "Campus Security & Safety Squad",
+      "capacity": 1
+    },
+    {
+      "id": "catering_staff",
+      "name": "Dining & Refreshment Staff",
+      "capacity": 1
+    }
+  ],
+  "agents": [
+    "VENUE",
+    "LOGISTICS",
+    "SPEAKER"
+  ]
+}

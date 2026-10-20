@@ -245,3 +245,57 @@ inline void to_json(nlohmann::json& j, const PlanMetrics& m) {
         {"failedTasksCount", m.failedTasksCount}
     };
 }
+
+// Scenario definitions
+struct ScenarioResource {
+    std::string id;
+    std::string name;
+    int capacity = 1;
+};
+
+inline void to_json(nlohmann::json& j, const ScenarioResource& r) {
+    j = nlohmann::json{
+        {"id", r.id},
+        {"name", r.name},
+        {"capacity", r.capacity}
+    };
+}
+
+inline void from_json(const nlohmann::json& j, ScenarioResource& r) {
+    r.id = j.value("id", "");
+    r.name = j.value("name", "");
+    r.capacity = j.value("capacity", 1);
+}
+
+struct BenchmarkScenario {
+    std::string scenarioId;
+    std::string name;
+    std::string description;
+    int maxDeadline = 24;
+    double maxBudget = 10000.0;
+    std::vector<ScenarioResource> resources;
+    std::vector<std::string> agents;
+};
+
+inline void to_json(nlohmann::json& j, const BenchmarkScenario& s) {
+    j = nlohmann::json{
+        {"scenarioId", s.scenarioId},
+        {"name", s.name},
+        {"description", s.description},
+        {"maxDeadline", s.maxDeadline},
+        {"maxBudget", s.maxBudget},
+        {"resources", s.resources},
+        {"agents", s.agents}
+    };
+}
+
+inline void from_json(const nlohmann::json& j, BenchmarkScenario& s) {
+    s.scenarioId = j.value("scenarioId", "");
+    s.name = j.value("name", "");
+    s.description = j.value("description", "");
+    s.maxDeadline = j.value("maxDeadline", 24);
+    s.maxBudget = j.value("maxBudget", 10000.0);
+    s.resources = j.value("resources", std::vector<ScenarioResource>{});
+    s.agents = j.value("agents", std::vector<std::string>{});
+}
+
