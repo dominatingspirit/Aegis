@@ -1,0 +1,12 @@
+# C++ build output
+build/
+test_recovery
+test_recovery.exe
+*.o
+*.obj
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+*.log
+.DS_Store
