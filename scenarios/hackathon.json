@@ -1,0 +1,96 @@
+{
+  "scenarioId": "hackathon",
+  "name": "Autonomous Hackathon 48H",
+  "description": "National 48-Hour AI & Robotics Hackathon with multi-agent orchestration of judging, mentoring, and compute clusters.",
+  "maxDeadline": 48,
+  "maxBudget": 15000.0,
+  "resources": [
+    { "id": "main_hall", "name": "Hackathon Main Stage", "capacity": 1 },
+    { "id": "cloud_cluster", "name": "Dedicated GPU Cluster", "capacity": 1 },
+    { "id": "mentor_pool", "name": "Industry Mentor Squad", "capacity": 1 },
+    { "id": "catering_staff", "name": "Dining & Refreshment Staff", "capacity": 1 }
+  ],
+  "agents": ["VENUE", "LOGISTICS", "SPEAKER"],
+  "tasks": [
+    {
+      "id": "team_checkin",
+      "name": "Team Onboarding & Badge Clearance",
+      "agentType": "VENUE",
+      "duration": 2,
+      "cost": 600.0,
+      "priority": 5,
+      "dependencies": [],
+      "requiredResources": ["main_hall"]
+    },
+    {
+      "id": "cloud_provisioning",
+      "name": "GPU Cloud & API Key Rigging",
+      "agentType": "LOGISTICS",
+      "duration": 3,
+      "cost": 1200.0,
+      "priority": 5,
+      "dependencies": ["team_checkin"],
+      "requiredResources": ["cloud_cluster"]
+    },
+    {
+      "id": "opening_ceremony",
+      "name": "Problem Statement Keynote Release",
+      "agentType": "SPEAKER",
+      "duration": 2,
+      "cost": 800.0,
+      "priority": 4,
+      "dependencies": ["team_checkin"],
+      "requiredResources": ["main_hall"]
+    },
+    {
+      "id": "hacking_phase_1",
+      "name": "Sprint 1: Core Prototyping",
+      "agentType": "LOGISTICS",
+      "duration": 6,
+      "cost": 2500.0,
+      "priority": 4,
+      "dependencies": ["cloud_provisioning", "opening_ceremony"],
+      "requiredResources": ["cloud_cluster"]
+    },
+    {
+      "id": "midnight_catering",
+      "name": "Midnight Energy Buffets & Beverages",
+      "agentType": "LOGISTICS",
+      "duration": 2,
+      "cost": 1800.0,
+      "priority": 3,
+      "dependencies": ["hacking_phase_1"],
+      "requiredResources": ["catering_staff"]
+    },
+    {
+      "id": "mentor_clinics",
+      "name": "1-on-1 Architecture Mentoring",
+      "agentType": "SPEAKER",
+      "duration": 4,
+      "cost": 1000.0,
+      "priority": 4,
+      "dependencies": ["hacking_phase_1"],
+      "requiredResources": ["mentor_pool"]
+    },
+    {
+      "id": "final_pitching",
+      "name": "Top 10 Finalist Stage Demos",
+      "agentType": "SPEAKER",
+      "duration": 4,
+      "cost": 1500.0,
+      "priority": 5,
+      "dependencies": ["mentor_clinics"],
+      "requiredResources": ["main_hall"]
+    },
+    {
+      "id": "awards_ceremony",
+      "name": "Grand Trophy & Prize Distribution",
+      "agentType": "VENUE",
+      "duration": 2,
+      "cost": 900.0,
+      "priority": 5,
+      "dependencies": ["final_pitching"],
+      "requiredResources": ["main_hall"]
+    }
+  ]
+}

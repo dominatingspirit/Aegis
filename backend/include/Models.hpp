@@ -275,6 +275,7 @@ struct BenchmarkScenario {
     double maxBudget = 10000.0;
     std::vector<ScenarioResource> resources;
     std::vector<std::string> agents;
+    std::vector<Task> tasks;
 };
 
 inline void to_json(nlohmann::json& j, const BenchmarkScenario& s) {
@@ -285,7 +286,8 @@ inline void to_json(nlohmann::json& j, const BenchmarkScenario& s) {
         {"maxDeadline", s.maxDeadline},
         {"maxBudget", s.maxBudget},
         {"resources", s.resources},
-        {"agents", s.agents}
+        {"agents", s.agents},
+        {"tasks", s.tasks}
     };
 }
 
@@ -297,5 +299,6 @@ inline void from_json(const nlohmann::json& j, BenchmarkScenario& s) {
     s.maxBudget = j.value("maxBudget", 10000.0);
     s.resources = j.value("resources", std::vector<ScenarioResource>{});
     s.agents = j.value("agents", std::vector<std::string>{});
+    s.tasks = j.value("tasks", std::vector<Task>{});
 }
 

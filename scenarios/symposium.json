@@ -5,30 +5,72 @@
   "maxDeadline": 24,
   "maxBudget": 10000.0,
   "resources": [
-    {
-      "id": "main_hall",
-      "name": "Auditorium Main Hall",
-      "capacity": 1
-    },
-    {
-      "id": "tech_crew",
-      "name": "AV & Rigging Technical Crew",
-      "capacity": 1
-    },
-    {
-      "id": "security_team",
-      "name": "Campus Security & Safety Squad",
-      "capacity": 1
-    },
-    {
-      "id": "catering_staff",
-      "name": "Dining & Refreshment Staff",
-      "capacity": 1
-    }
+    { "id": "main_hall", "name": "Auditorium Main Hall", "capacity": 1 },
+    { "id": "tech_crew", "name": "AV & Rigging Technical Crew", "capacity": 1 },
+    { "id": "security_team", "name": "Campus Security & Safety Squad", "capacity": 1 },
+    { "id": "catering_staff", "name": "Dining & Refreshment Staff", "capacity": 1 }
   ],
-  "agents": [
-    "VENUE",
-    "LOGISTICS",
-    "SPEAKER"
+  "agents": ["VENUE", "LOGISTICS", "SPEAKER"],
+  "tasks": [
+    {
+      "id": "hall_booking",
+      "name": "Main Auditorium Booking",
+      "agentType": "VENUE",
+      "duration": 4,
+      "cost": 1200.0,
+      "priority": 5,
+      "dependencies": [],
+      "requiredResources": ["main_hall"]
+    },
+    {
+      "id": "security_check",
+      "name": "Security & Fire Safety Clearance",
+      "agentType": "VENUE",
+      "duration": 2,
+      "cost": 400.0,
+      "priority": 4,
+      "dependencies": ["hall_booking"],
+      "requiredResources": ["security_team"]
+    },
+    {
+      "id": "av_setup",
+      "name": "Audio-Visual & Lighting Rigging",
+      "agentType": "LOGISTICS",
+      "duration": 3,
+      "cost": 800.0,
+      "priority": 4,
+      "dependencies": ["hall_booking"],
+      "requiredResources": ["tech_crew"]
+    },
+    {
+      "id": "catering_setup",
+      "name": "Buffet & Dining Logistics Setup",
+      "agentType": "LOGISTICS",
+      "duration": 2,
+      "cost": 1500.0,
+      "priority": 3,
+      "dependencies": ["hall_booking"],
+      "requiredResources": ["catering_staff"]
+    },
+    {
+      "id": "speaker_rehearsal",
+      "name": "Keynote Soundcheck & Dry Run",
+      "agentType": "SPEAKER",
+      "duration": 2,
+      "cost": 300.0,
+      "priority": 3,
+      "dependencies": ["av_setup"],
+      "requiredResources": ["tech_crew"]
+    },
+    {
+      "id": "keynote_session",
+      "name": "Keynote Address & Panel Q&A",
+      "agentType": "SPEAKER",
+      "duration": 3,
+      "cost": 2000.0,
+      "priority": 5,
+      "dependencies": ["speaker_rehearsal"],
+      "requiredResources": ["main_hall"]
+    }
   ]
 }

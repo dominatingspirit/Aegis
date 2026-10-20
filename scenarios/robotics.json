@@ -1,0 +1,86 @@
+{
+  "scenarioId": "robotics",
+  "name": "Robotics Autonomous Conclave",
+  "description": "Autonomous rover and drone trials requiring strict arena clearances, telemetry calibration, and battery charging cycles.",
+  "maxDeadline": 30,
+  "maxBudget": 12000.0,
+  "resources": [
+    { "id": "arena", "name": "Drone & Rover Arena", "capacity": 1 },
+    { "id": "telemetry_rig", "name": "RF Telemetry Tracking Rig", "capacity": 1 },
+    { "id": "safety_marshall", "name": "Safety & Fire Marshall", "capacity": 1 },
+    { "id": "charge_dock", "name": "High-Voltage Charging Dock", "capacity": 1 }
+  ],
+  "agents": ["VENUE", "LOGISTICS", "SPEAKER"],
+  "tasks": [
+    {
+      "id": "arena_quarantine",
+      "name": "Arena Perimeter Safety Lock",
+      "agentType": "VENUE",
+      "duration": 3,
+      "cost": 900.0,
+      "priority": 5,
+      "dependencies": [],
+      "requiredResources": ["arena"]
+    },
+    {
+      "id": "safety_inspection",
+      "name": "Emergency Kill-Switch Verification",
+      "agentType": "VENUE",
+      "duration": 2,
+      "cost": 500.0,
+      "priority": 5,
+      "dependencies": ["arena_quarantine"],
+      "requiredResources": ["safety_marshall"]
+    },
+    {
+      "id": "telemetry_calibration",
+      "name": "RF Telemetry & LiDAR Calibrations",
+      "agentType": "LOGISTICS",
+      "duration": 3,
+      "cost": 1100.0,
+      "priority": 4,
+      "dependencies": ["arena_quarantine"],
+      "requiredResources": ["telemetry_rig"]
+    },
+    {
+      "id": "qualifier_trials",
+      "name": "Obstacle Course Qualifier Trials",
+      "agentType": "LOGISTICS",
+      "duration": 4,
+      "cost": 1600.0,
+      "priority": 4,
+      "dependencies": ["safety_inspection", "telemetry_calibration"],
+      "requiredResources": ["arena"]
+    },
+    {
+      "id": "battery_recharge",
+      "name": "Rapid Fast-Charge Turnaround",
+      "agentType": "LOGISTICS",
+      "duration": 3,
+      "cost": 400.0,
+      "priority": 3,
+      "dependencies": ["qualifier_trials"],
+      "requiredResources": ["charge_dock"]
+    },
+    {
+      "id": "championship_race",
+      "name": "Championship Autonomous Grand Prix",
+      "agentType": "SPEAKER",
+      "duration": 3,
+      "cost": 2200.0,
+      "priority": 5,
+      "dependencies": ["battery_recharge"],
+      "requiredResources": ["arena"]
+    },
+    {
+      "id": "podium_presentation",
+      "name": "Winner Telemetry Review & Podium",
+      "agentType": "SPEAKER",
+      "duration": 2,
+      "cost": 800.0,
+      "priority": 4,
+      "dependencies": ["championship_race"],
+      "requiredResources": ["safety_marshall"]
+    }
+  ]
+}

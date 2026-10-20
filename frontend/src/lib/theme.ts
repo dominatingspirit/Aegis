@@ -64,12 +64,16 @@ export const STATUS_STYLES: Record<TaskStatus, StatusStyle> = {
 
 export const STATUS_ORDER: TaskStatus[] = ['SCHEDULED', 'PRESERVED', 'REPLANNED', 'FAILED', 'PENDING'];
 
-const AGENT_BADGES: Record<string, string> = {
-  VENUE: 'bg-violet-500/15 text-violet-300 ring-violet-500/40',
-  LOGISTICS: 'bg-cyan-500/15 text-cyan-300 ring-cyan-500/40',
-  SPEAKER: 'bg-fuchsia-500/15 text-fuchsia-300 ring-fuchsia-500/40',
+const AGENT_LABELS: Record<string, string> = {
+  VENUE: 'Venue',
+  LOGISTICS: 'Logistics',
+  SPEAKER: 'Speaker',
 };
 
-export function agentBadgeClass(agentType: string): string {
-  return AGENT_BADGES[agentType] ?? 'bg-slate-700/40 text-slate-300 ring-slate-500/40';
+export function agentLabel(agentType: string): string {
+  return AGENT_LABELS[agentType] ?? agentType;
+}
+
+export function agentBadgeClass(_agentType?: string): string {
+  return 'bg-zinc-800/80 text-zinc-300 border border-zinc-700/50';
 }
