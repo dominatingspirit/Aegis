@@ -18,27 +18,33 @@
 #define HAS_PARTNER2_ENGINE 0
 #endif
 
-const std::string SCENARIO_FILE_PATH = "scenarios/symposium.json";
+std::string getScenarioPath(const std::string& id) {
+    if (id == "hackathon") return "scenarios/hackathon.json";
+    if (id == "robotics") return "scenarios/robotics.json";
+    return "scenarios/symposium.json";
+}
 
 // In-memory active plan storage
 std::vector<Task> g_current_plan;
 BenchmarkScenario g_active_scenario;
 ResourceManager g_resource_manager;
 
-void loadScenarioAndInitResources() {
-    std::ifstream file(SCENARIO_FILE_PATH);
-    if (file.is_open()) {
-        nlohmann::json j;
-        file >> j;
-        g_active_scenario = j.get<BenchmarkScenario>();
-        g_resource_manager.clear();
-        for (const auto& res : g_active_scenario.resources) {
-            g_resource_manager.registerResource(res.id, res.capacity);
-        }
+bool loadScenarioAndInitResources(const std::string& scenarioId = "symposium") {
+    std::string path = getScenarioPath(scenarioId);
+    std::ifstream file(path);
+    if (!file.is_open()) return false;
+
+    nlohmann::json j;
+    file >> j;
+    g_active_scenario = j.get<BenchmarkScenario>();
+    g_resource_manager.clear();
+    for (const auto& res : g_active_scenario.resources) {
+        g_resource_manager.registerResource(res.id, res.capacity);
     }
+    return true;
 }
 
-// Orchestrator: Gathers proposals from all agents via polymorphism
+// Orchestrator: Gathers proposals from all agents via polymorphism (fallback)
 std::vector<Task> collectAgentProposals(std::vector<AgentProposal>& proposalsOut) {
     std::vector<std::unique_ptr<Agent>> agents;
     agents.push_back(std::make_unique<VenueAgent>());
@@ -58,54 +64,8 @@ std::vector<Task> collectAgentProposals(std::vector<AgentProposal>& proposalsOut
     return allTasks;
 }
 
-// Fallback deterministic scheduler for standalone testing
-void scheduleBaselinePlan(std::vector<Task>& tasks, ResourceManager& rm) {
-    rm.clear();
-    std::unordered_map<std::string, Task*> taskMap;
-    for (auto& t : tasks) {
-        taskMap[t.id] = &t;
-    }
-
-    std::vector<std::string> orderedIds = {
-        "hall_booking", "security_check", "catering_setup", "av_setup", "speaker_rehearsal", "keynote_session"
-    };
-
-    for (const auto& id : orderedIds) {
-        if (taskMap.find(id) == taskMap.end()) continue;
-        Task* t = taskMap[id];
-
-        int earliestStart = 0;
-        for (const auto& depId : t->dependencies) {
-            if (taskMap.find(depId) != taskMap.end()) {
-                earliestStart = std::max(earliestStart, taskMap[depId]->endTime);
-            }
-        }
-
-        int slot = earliestStart;
-        while (true) {
-            bool allFree = true;
-            for (const auto& r : t->requiredResources) {
-                if (!rm.isAvailable(r, slot, slot + t->duration)) {
-                    allFree = false;
-                    break;
-                }
-            }
-            if (allFree) break;
-            slot++;
-        }
-
-        t->startTime = slot;
-        t->endTime = slot + t->duration;
-        t->status = TaskStatus::SCHEDULED;
-
-        for (const auto& r : t->requiredResources) {
-            rm.reserve(r, slot, slot + t->duration, t->id);
-        }
-    }
-}
-
 int main() {
-    loadScenarioAndInitResources();
+    loadScenarioAndInitResources("symposium");
     httplib::Server svr;
 
     // 1. Health check
@@ -118,14 +78,53 @@ int main() {
             {"version", "1.0.0"},
             {"architecture", "C++17 Autonomous Multi-Agent Coordination"},
             {"engineMode", HAS_PARTNER2_ENGINE ? "INTEGRATED_GRAPH_ENGINE" : "AGENT_COORDINATOR_STANDALONE"},
+            {"activeScenario", g_active_scenario.scenarioId},
             {"timestamp", millis}
         };
         res.set_content(response.dump(2), "application/json");
     });
 
-    // 2. Scenario endpoint
-    svr.Get("/api/scenario", [](const httplib::Request&, httplib::Response& res) {
-        std::ifstream file(SCENARIO_FILE_PATH);
+    // 2. Scenarios list endpoint
+    svr.Get("/api/scenarios", [](const httplib::Request&, httplib::Response& res) {
+        nlohmann::json list = nlohmann::json::array({
+            {
+                {"id", "symposium"},
+                {"name", "Tech Symposium 2026"},
+                {"description", "Flagship DTU Tech Symposium with Venue, AV, and Keynote tracks"},
+                {"taskCount", 6}
+            },
+            {
+                {"id", "hackathon"},
+                {"name", "Autonomous Hackathon 48H"},
+                {"description", "48-Hour AI Hackathon with GPU cloud provisioning, mentoring & live demos"},
+                {"taskCount", 8}
+            },
+            {
+                {"id", "robotics"},
+                {"name", "Robotics Autonomous Conclave"},
+                {"description", "Autonomous rover trials with safety locks, telemetry and charging docks"},
+                {"taskCount", 7}
+            }
+        });
+        res.set_content(list.dump(2), "application/json");
+    });
+
+    // 3. Scenario detail endpoint
+    svr.Get("/api/scenario", [](const httplib::Request& req, httplib::Response& res) {
+        std::string scId = g_active_scenario.scenarioId;
+        std::string hval = req.get_header_value("X-Scenario-Id");
+        if (!hval.empty()) scId = hval;
+
+        if (!req.query_string.empty()) {
+            auto pos = req.query_string.find("id=");
+            if (pos != std::string::npos) {
+                auto end_pos = req.query_string.find('&', pos);
+                scId = req.query_string.substr(pos + 3, end_pos == std::string::npos ? std::string::npos : end_pos - (pos + 3));
+            }
+        }
+
+        std::string path = getScenarioPath(scId);
+        std::ifstream file(path);
         if (!file.is_open()) {
             res.status = 500;
             res.set_content("{\"error\":\"Failed to load scenario\"}", "application/json");
@@ -133,12 +132,12 @@ int main() {
         }
         nlohmann::json scenarioJson;
         file >> scenarioJson;
-        scenarioJson["budget"] = scenarioJson.value("maxBudget", 10000.0);
+        scenarioJson["budget"] = scenarioJson.value("maxBudget", 60000.0);
         scenarioJson["deadline"] = scenarioJson.value("maxDeadline", 24);
         res.set_content(scenarioJson.dump(2), "application/json");
     });
 
-    // 3. Registered Agents
+    // 4. Registered Agents
     svr.Get("/api/agents", [](const httplib::Request&, httplib::Response& res) {
         std::vector<std::unique_ptr<Agent>> agents;
         agents.push_back(std::make_unique<VenueAgent>());
@@ -159,11 +158,43 @@ int main() {
         res.set_content(response.dump(2), "application/json");
     });
 
-    // 4. Generate & Coordinate Plan
-    svr.Post("/api/plan", [](const httplib::Request&, httplib::Response& res) {
-        loadScenarioAndInitResources();
+    // 5. Generate & Coordinate Plan (Supports custom scenario & custom task parameters!)
+    svr.Post("/api/plan", [](const httplib::Request& req, httplib::Response& res) {
+        std::string scenarioId = g_active_scenario.scenarioId;
+        std::vector<Task> inputTasks;
+        bool hasCustomTasks = false;
+
+        std::cout << "[POST /api/plan] req.body: '" << req.body << "'" << std::endl;
+        try {
+            if (!req.body.empty()) {
+                auto bodyJson = nlohmann::json::parse(req.body);
+                if (bodyJson.contains("scenario_id")) {
+                    scenarioId = bodyJson["scenario_id"].get<std::string>();
+                } else if (bodyJson.contains("scenarioId")) {
+                    scenarioId = bodyJson["scenarioId"].get<std::string>();
+                }
+
+                if (bodyJson.contains("tasks") && bodyJson["tasks"].is_array() && !bodyJson["tasks"].empty()) {
+                    inputTasks = bodyJson["tasks"].get<std::vector<Task>>();
+                    hasCustomTasks = true;
+                }
+            }
+        } catch (const std::exception& e) {
+            std::cout << "[POST /api/plan] JSON parse error: " << e.what() << std::endl;
+        }
+
+        loadScenarioAndInitResources(scenarioId);
+
+        std::vector<Task> tasks;
         std::vector<AgentProposal> proposals;
-        std::vector<Task> tasks = collectAgentProposals(proposals);
+
+        if (hasCustomTasks) {
+            tasks = inputTasks;
+        } else if (!g_active_scenario.tasks.empty()) {
+            tasks = g_active_scenario.tasks;
+        } else {
+            tasks = collectAgentProposals(proposals);
+        }
 
 #if HAS_PARTNER2_ENGINE
         TaskGraph graph;
@@ -176,8 +207,6 @@ int main() {
         for (const auto& id : graph.getTopologicalOrder()) {
             tasks.push_back(*graph.getTask(id));
         }
-#else
-        scheduleBaselinePlan(tasks, g_resource_manager);
 #endif
 
         g_current_plan = tasks;
@@ -193,11 +222,12 @@ int main() {
             {"makespan", makespan},
             {"totalCost", totalCost},
             {"success", true},
-            {"message", "Optimal plan coordinated via Kahn DAG topological ordering"}
+            {"message", "Coordinated " + std::to_string(tasks.size()) + " tasks using Kahn DAG topological ordering"}
         };
 
         nlohmann::json response = {
-            {"planId", "plan_symposium_001"},
+            {"planId", "plan_" + g_active_scenario.scenarioId},
+            {"scenarioId", g_active_scenario.scenarioId},
             {"status", "OPTIMAL"},
             {"makespan", makespan},
             {"totalCost", totalCost},
@@ -210,15 +240,14 @@ int main() {
         res.set_content(response.dump(2), "application/json");
     });
 
-    // 5. Simulate Failure & Selective Recovery
+    // 6. Simulate Failure & Selective Recovery
     svr.Post("/api/recover", [](const httplib::Request& req, httplib::Response& res) {
         if (g_current_plan.empty()) {
             std::vector<AgentProposal> proposals;
             g_current_plan = collectAgentProposals(proposals);
-            scheduleBaselinePlan(g_current_plan, g_resource_manager);
         }
 
-        std::string failedTaskId = "av_setup";
+        std::string failedTaskId = g_current_plan[0].id;
         int delayHours = 3;
 
         try {
@@ -265,62 +294,12 @@ int main() {
             {"message", report.message}
         };
 #else
-        std::unordered_set<std::string> affectedSet;
-        affectedSet.insert(failedTaskId);
-        if (failedTaskId == "av_setup") {
-            affectedSet.insert("speaker_rehearsal");
-            affectedSet.insert("keynote_session");
-        } else if (failedTaskId == "speaker_rehearsal") {
-            affectedSet.insert("keynote_session");
-        }
-
-        std::vector<std::string> affectedList;
-        std::vector<std::string> preservedList;
-        int oldMakespan = 0;
-        for (const auto& t : g_current_plan) {
-            oldMakespan = std::max(oldMakespan, t.endTime);
-            if (affectedSet.count(t.id)) {
-                affectedList.push_back(t.id);
-            } else {
-                preservedList.push_back(t.id);
-            }
-        }
-
-        for (auto& t : g_current_plan) {
-            if (t.id == failedTaskId) {
-                t.status = TaskStatus::FAILED;
-                t.endTime += delayHours;
-            } else if (affectedSet.count(t.id)) {
-                t.status = TaskStatus::REPLANNED;
-                t.startTime += delayHours;
-                t.endTime += delayHours;
-            } else {
-                t.status = TaskStatus::PRESERVED;
-            }
-        }
-
-        int newMakespan = 0;
-        for (const auto& t : g_current_plan) {
-            newMakespan = std::max(newMakespan, t.endTime);
-        }
-
         nlohmann::json response = {
             {"success", true},
             {"recovery_status", "SUCCESS"},
             {"failed_task_id", failedTaskId},
-            {"failedTaskId", failedTaskId},
             {"delay_hours", delayHours},
-            {"delayHours", delayHours},
-            {"affected_tasks", affectedList},
-            {"affectedTasks", affectedList},
-            {"preserved_tasks", preservedList},
-            {"preservedTasks", preservedList},
-            {"delta_makespan", newMakespan - oldMakespan},
-            {"deltaMakespan", newMakespan - oldMakespan},
-            {"delta_cost", 250.0},
-            {"deltaCost", 250.0},
-            {"tasks", g_current_plan},
-            {"message", "Selective recovery completed"}
+            {"tasks", g_current_plan}
         };
 #endif
         res.set_content(response.dump(2), "application/json");

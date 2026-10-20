@@ -17,8 +17,20 @@ namespace httplib {
 struct Request {
     std::string method;
     std::string path;
+    std::string query_string;
     std::unordered_map<std::string, std::string> headers;
     std::string body;
+
+    std::string get_header_value(const std::string& name) const {
+        std::string lower_name = name;
+        for (char& c : lower_name) c = std::tolower(static_cast<unsigned char>(c));
+        for (const auto& pair : headers) {
+            std::string lower_key = pair.first;
+            for (char& c : lower_key) c = std::tolower(static_cast<unsigned char>(c));
+            if (lower_key == lower_name) return pair.second;
+        }
+        return "";
+    }
 };
 
 struct Response {
@@ -47,15 +59,26 @@ private:
     bool is_running = false;
 
     static void parse_request(const std::string& raw, Request& req) {
-        std::istringstream stream(raw);
+        size_t header_end = raw.find("\r\n\r\n");
+        std::string header_part = (header_end != std::string::npos) ? raw.substr(0, header_end) : raw;
+        if (header_end != std::string::npos) {
+            req.body = raw.substr(header_end + 4);
+        }
+
+        std::istringstream stream(header_part);
         std::string line;
         if (std::getline(stream, line)) {
             if (!line.empty() && line.back() == '\r') line.pop_back();
             std::istringstream line_stream(line);
             line_stream >> req.method >> req.path;
+            auto qpos = req.path.find('?');
+            if (qpos != std::string::npos) {
+                req.query_string = req.path.substr(qpos + 1);
+                req.path = req.path.substr(0, qpos);
+            }
         }
 
-        while (std::getline(stream, line) && line != "\r" && !line.empty()) {
+        while (std::getline(stream, line)) {
             if (!line.empty() && line.back() == '\r') line.pop_back();
             auto colon = line.find(':');
             if (colon != std::string::npos) {
@@ -65,13 +88,6 @@ private:
                 req.headers[key] = val;
             }
         }
-
-        std::string body;
-        while (std::getline(stream, line)) {
-            body += line + "\n";
-        }
-        if (!body.empty() && body.back() == '\n') body.pop_back();
-        req.body = body;
     }
 
     static std::string build_response(const Response& res) {
@@ -84,7 +100,7 @@ private:
         ss << "HTTP/1.1 " << res.status << " " << status_msg << "\r\n";
         ss << "Access-Control-Allow-Origin: *\r\n";
         ss << "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n";
-        ss << "Access-Control-Allow-Headers: Content-Type, Authorization\r\n";
+        ss << "Access-Control-Allow-Headers: Content-Type, Authorization, X-Scenario-Id, x-scenario-id, *\r\n";
         ss << "Content-Length: " << res.body.size() << "\r\n";
 
         for (const auto& h : res.headers) {
@@ -175,6 +191,17 @@ public:
                 buffer[bytes_received] = '\0';
                 Request req;
                 parse_request(std::string(buffer, bytes_received), req);
+
+                auto it_cl = req.headers.find("Content-Length");
+                if (it_cl != req.headers.end()) {
+                    size_t content_length = 0;
+                    try { content_length = std::stoul(it_cl->second); } catch (...) {}
+                    while (req.body.size() < content_length) {
+                        int more_bytes = recv(client_sock, buffer, sizeof(buffer) - 1, 0);
+                        if (more_bytes <= 0) break;
+                        req.body.append(buffer, more_bytes);
+                    }
+                }
 
                 Response res;
                 // Handle CORS preflight

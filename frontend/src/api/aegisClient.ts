@@ -112,8 +112,8 @@ function normalizeReport(input: Json): RecoveryReport {
 function normalizeScenario(r: Json): ScenarioInfo {
   return {
     name: String(r.name ?? MOCK_SCENARIO.name),
-    budget: num(r.budget ?? r.intended_budget ?? r.intendedBudget, MOCK_SCENARIO.budget),
-    deadline: num(r.deadline ?? r.deadline_hours ?? r.deadlineHours, MOCK_SCENARIO.deadline),
+    budget: num(r.budget ?? r.maxBudget ?? r.intended_budget ?? r.intendedBudget, MOCK_SCENARIO.budget),
+    deadline: num(r.deadline ?? r.maxDeadline ?? r.deadline_hours ?? r.deadlineHours, MOCK_SCENARIO.deadline),
     resources: asArray(r.resources).map((x) =>
       typeof x === 'object' && x !== null ? String((x as Json).id ?? (x as Json).name) : String(x),
     ),
@@ -134,22 +134,34 @@ export async function checkHealth(): Promise<boolean> {
   }
 }
 
-export async function fetchScenario(): Promise<ScenarioInfo> {
+export async function fetchScenario(scenarioId: string = 'symposium'): Promise<ScenarioInfo> {
   try {
-    return normalizeScenario(await request('/api/scenario'));
+    return normalizeScenario(
+      await request(`/api/scenario?id=${encodeURIComponent(scenarioId)}`, {
+        headers: { 'X-Scenario-Id': scenarioId },
+      }),
+    );
   } catch {
     return MOCK_SCENARIO;
   }
 }
 
 /** Ask the backend for a plan; fall back to the demo engine if it is unreachable. */
-export async function requestPlan(backendOnline: boolean): Promise<PlanResult> {
+export async function requestPlan(
+  backendOnline: boolean,
+  scenarioId: string = 'symposium',
+  customTasks?: Task[],
+): Promise<PlanResult> {
   if (backendOnline) {
     try {
+      const payload: Record<string, unknown> = { scenario_id: scenarioId };
+      if (customTasks && customTasks.length > 0) {
+        payload.tasks = customTasks;
+      }
       const body = await request('/api/plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: '{}',
+        body: JSON.stringify(payload),
       });
       const tasks = asArray(body.tasks).map(normalizeTask);
       const m = (body.metrics ?? {}) as Json;
@@ -157,10 +169,12 @@ export async function requestPlan(backendOnline: boolean): Promise<PlanResult> {
         makespan: num(m.makespan, makespanOf(tasks)),
         totalCost: num(m.totalCost ?? m.total_cost, totalCostOf(tasks)),
         success: m.success === undefined ? true : Boolean(m.success),
-        message: String(m.message ?? `Received ${tasks.length} tasks from backend`),
+        message: String(m.message ?? `Coordinated ${tasks.length} tasks`),
       };
+      const maxBudget = body.maxBudget !== undefined ? num(body.maxBudget, 0) : undefined;
+      const maxDeadline = body.maxDeadline !== undefined ? num(body.maxDeadline, 0) : undefined;
       source = 'backend';
-      return { tasks, metrics, source };
+      return { tasks, metrics, source, maxBudget, maxDeadline };
     } catch (err) {
       if (!(err instanceof NetworkError)) throw err;
     }

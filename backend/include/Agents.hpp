@@ -57,7 +57,7 @@ public:
         hallBooking.name = "Main Auditorium Booking";
         hallBooking.agentType = getAgentType();
         hallBooking.duration = 4;
-        hallBooking.cost = 1200.0;
+        hallBooking.cost = 8000.0;
         hallBooking.priority = 5;
         hallBooking.dependencies = {};
         hallBooking.requiredResources = {"main_hall"};
@@ -67,7 +67,7 @@ public:
         securityCheck.name = "Security & Fire Safety Clearance";
         securityCheck.agentType = getAgentType();
         securityCheck.duration = 2;
-        securityCheck.cost = 400.0;
+        securityCheck.cost = 2500.0;
         securityCheck.priority = 4;
         securityCheck.dependencies = {"hall_booking"};
         securityCheck.requiredResources = {"security_team"};
@@ -97,7 +97,7 @@ public:
         avSetup.name = "Audio-Visual & Lighting Rigging";
         avSetup.agentType = getAgentType();
         avSetup.duration = 3;
-        avSetup.cost = 800.0;
+        avSetup.cost = 6000.0;
         avSetup.priority = 4;
         avSetup.dependencies = {"hall_booking"};
         avSetup.requiredResources = {"tech_crew"};
@@ -107,7 +107,7 @@ public:
         cateringSetup.name = "Buffet & Dining Logistics Setup";
         cateringSetup.agentType = getAgentType();
         cateringSetup.duration = 2;
-        cateringSetup.cost = 1500.0;
+        cateringSetup.cost = 15000.0;
         cateringSetup.priority = 3;
         cateringSetup.dependencies = {"hall_booking"};
         cateringSetup.requiredResources = {"catering_staff"};
@@ -137,7 +137,7 @@ public:
         rehearsal.name = "Keynote Soundcheck & Dry Run";
         rehearsal.agentType = getAgentType();
         rehearsal.duration = 2;
-        rehearsal.cost = 300.0;
+        rehearsal.cost = 2000.0;
         rehearsal.priority = 3;
         rehearsal.dependencies = {"av_setup"};
         rehearsal.requiredResources = {"tech_crew"};
@@ -147,7 +147,7 @@ public:
         keynote.name = "Keynote Address & Panel Q&A";
         keynote.agentType = getAgentType();
         keynote.duration = 3;
-        keynote.cost = 2000.0;
+        keynote.cost = 12000.0;
         keynote.priority = 5;
         keynote.dependencies = {"speaker_rehearsal"};
         keynote.requiredResources = {"main_hall"};
