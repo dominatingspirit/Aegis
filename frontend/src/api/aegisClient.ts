@@ -112,8 +112,8 @@ function normalizeReport(input: Json): RecoveryReport {
 function normalizeScenario(r: Json): ScenarioInfo {
   return {
     name: String(r.name ?? MOCK_SCENARIO.name),
-    budget: num(r.budget ?? r.intended_budget ?? r.intendedBudget, MOCK_SCENARIO.budget),
-    deadline: num(r.deadline ?? r.deadline_hours ?? r.deadlineHours, MOCK_SCENARIO.deadline),
+    budget: num(r.budget ?? r.maxBudget ?? r.intended_budget ?? r.intendedBudget, MOCK_SCENARIO.budget),
+    deadline: num(r.deadline ?? r.maxDeadline ?? r.deadline_hours ?? r.deadlineHours, MOCK_SCENARIO.deadline),
     resources: asArray(r.resources).map((x) =>
       typeof x === 'object' && x !== null ? String((x as Json).id ?? (x as Json).name) : String(x),
     ),
@@ -137,7 +137,7 @@ export async function checkHealth(): Promise<boolean> {
 export async function fetchScenario(scenarioId: string = 'symposium'): Promise<ScenarioInfo> {
   try {
     return normalizeScenario(
-      await request('/api/scenario', {
+      await request(`/api/scenario?id=${encodeURIComponent(scenarioId)}`, {
         headers: { 'X-Scenario-Id': scenarioId },
       }),
     );
@@ -171,8 +171,10 @@ export async function requestPlan(
         success: m.success === undefined ? true : Boolean(m.success),
         message: String(m.message ?? `Coordinated ${tasks.length} tasks`),
       };
+      const maxBudget = body.maxBudget !== undefined ? num(body.maxBudget, 0) : undefined;
+      const maxDeadline = body.maxDeadline !== undefined ? num(body.maxDeadline, 0) : undefined;
       source = 'backend';
-      return { tasks, metrics, source };
+      return { tasks, metrics, source, maxBudget, maxDeadline };
     } catch (err) {
       if (!(err instanceof NetworkError)) throw err;
     }

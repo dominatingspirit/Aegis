@@ -112,8 +112,16 @@ int main() {
     // 3. Scenario detail endpoint
     svr.Get("/api/scenario", [](const httplib::Request& req, httplib::Response& res) {
         std::string scId = g_active_scenario.scenarioId;
-        auto it = req.headers.find("X-Scenario-Id");
-        if (it != req.headers.end()) scId = it->second;
+        std::string hval = req.get_header_value("X-Scenario-Id");
+        if (!hval.empty()) scId = hval;
+
+        if (!req.query_string.empty()) {
+            auto pos = req.query_string.find("id=");
+            if (pos != std::string::npos) {
+                auto end_pos = req.query_string.find('&', pos);
+                scId = req.query_string.substr(pos + 3, end_pos == std::string::npos ? std::string::npos : end_pos - (pos + 3));
+            }
+        }
 
         std::string path = getScenarioPath(scId);
         std::ifstream file(path);
@@ -124,7 +132,7 @@ int main() {
         }
         nlohmann::json scenarioJson;
         file >> scenarioJson;
-        scenarioJson["budget"] = scenarioJson.value("maxBudget", 10000.0);
+        scenarioJson["budget"] = scenarioJson.value("maxBudget", 60000.0);
         scenarioJson["deadline"] = scenarioJson.value("maxDeadline", 24);
         res.set_content(scenarioJson.dump(2), "application/json");
     });

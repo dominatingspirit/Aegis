@@ -3,7 +3,7 @@
   "name": "Robotics Autonomous Conclave",
   "description": "Autonomous rover and drone trials requiring strict arena clearances, telemetry calibration, and battery charging cycles.",
   "maxDeadline": 30,
-  "maxBudget": 12000.0,
+  "maxBudget": 75000.0,
   "resources": [
     { "id": "arena", "name": "Drone & Rover Arena", "capacity": 1 },
     { "id": "telemetry_rig", "name": "RF Telemetry Tracking Rig", "capacity": 1 },
@@ -17,7 +17,7 @@
       "name": "Arena Perimeter Safety Lock",
       "agentType": "VENUE",
       "duration": 3,
-      "cost": 900.0,
+      "cost": 6000.0,
       "priority": 5,
       "dependencies": [],
       "requiredResources": ["arena"]
@@ -27,7 +27,7 @@
       "name": "Emergency Kill-Switch Verification",
       "agentType": "VENUE",
       "duration": 2,
-      "cost": 500.0,
+      "cost": 3000.0,
       "priority": 5,
       "dependencies": ["arena_quarantine"],
       "requiredResources": ["safety_marshall"]
@@ -37,7 +37,7 @@
       "name": "RF Telemetry & LiDAR Calibrations",
       "agentType": "LOGISTICS",
       "duration": 3,
-      "cost": 1100.0,
+      "cost": 8000.0,
       "priority": 4,
       "dependencies": ["arena_quarantine"],
       "requiredResources": ["telemetry_rig"]
@@ -47,7 +47,7 @@
       "name": "Obstacle Course Qualifier Trials",
       "agentType": "LOGISTICS",
       "duration": 4,
-      "cost": 1600.0,
+      "cost": 12000.0,
       "priority": 4,
       "dependencies": ["safety_inspection", "telemetry_calibration"],
       "requiredResources": ["arena"]
@@ -57,7 +57,7 @@
       "name": "Rapid Fast-Charge Turnaround",
       "agentType": "LOGISTICS",
       "duration": 3,
-      "cost": 400.0,
+      "cost": 4000.0,
       "priority": 3,
       "dependencies": ["qualifier_trials"],
       "requiredResources": ["charge_dock"]
@@ -67,7 +67,7 @@
       "name": "Championship Autonomous Grand Prix",
       "agentType": "SPEAKER",
       "duration": 3,
-      "cost": 2200.0,
+      "cost": 18000.0,
       "priority": 5,
       "dependencies": ["battery_recharge"],
       "requiredResources": ["arena"]
@@ -77,7 +77,7 @@
       "name": "Winner Telemetry Review & Podium",
       "agentType": "SPEAKER",
       "duration": 2,
-      "cost": 800.0,
+      "cost": 5000.0,
       "priority": 4,
       "dependencies": ["championship_race"],
       "requiredResources": ["safety_marshall"]

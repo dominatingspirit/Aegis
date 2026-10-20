@@ -1,5 +1,8 @@
-export const usd = (n: number): string =>
-  n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+export const inr = (n: number): string =>
+  `₹${Math.round(n).toLocaleString('en-IN')}`;
+
+// Backwards-compatible alias for existing imports across components
+export const usd = inr;
 
 export const signed = (n: number, suffix = ''): string => `${n > 0 ? '+' : ''}${n}${suffix}`;
 

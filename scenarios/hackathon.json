@@ -3,7 +3,7 @@
   "name": "Autonomous Hackathon 48H",
   "description": "National 48-Hour AI & Robotics Hackathon with multi-agent orchestration of judging, mentoring, and compute clusters.",
   "maxDeadline": 48,
-  "maxBudget": 15000.0,
+  "maxBudget": 80000.0,
   "resources": [
     { "id": "main_hall", "name": "Hackathon Main Stage", "capacity": 1 },
     { "id": "cloud_cluster", "name": "Dedicated GPU Cluster", "capacity": 1 },
@@ -17,7 +17,7 @@
       "name": "Team Onboarding & Badge Clearance",
       "agentType": "VENUE",
       "duration": 2,
-      "cost": 600.0,
+      "cost": 3000.0,
       "priority": 5,
       "dependencies": [],
       "requiredResources": ["main_hall"]
@@ -27,7 +27,7 @@
       "name": "GPU Cloud & API Key Rigging",
       "agentType": "LOGISTICS",
       "duration": 3,
-      "cost": 1200.0,
+      "cost": 8000.0,
       "priority": 5,
       "dependencies": ["team_checkin"],
       "requiredResources": ["cloud_cluster"]
@@ -37,7 +37,7 @@
       "name": "Problem Statement Keynote Release",
       "agentType": "SPEAKER",
       "duration": 2,
-      "cost": 800.0,
+      "cost": 4000.0,
       "priority": 4,
       "dependencies": ["team_checkin"],
       "requiredResources": ["main_hall"]
@@ -47,7 +47,7 @@
       "name": "Sprint 1: Core Prototyping",
       "agentType": "LOGISTICS",
       "duration": 6,
-      "cost": 2500.0,
+      "cost": 15000.0,
       "priority": 4,
       "dependencies": ["cloud_provisioning", "opening_ceremony"],
       "requiredResources": ["cloud_cluster"]
@@ -57,7 +57,7 @@
       "name": "Midnight Energy Buffets & Beverages",
       "agentType": "LOGISTICS",
       "duration": 2,
-      "cost": 1800.0,
+      "cost": 12000.0,
       "priority": 3,
       "dependencies": ["hacking_phase_1"],
       "requiredResources": ["catering_staff"]
@@ -67,7 +67,7 @@
       "name": "1-on-1 Architecture Mentoring",
       "agentType": "SPEAKER",
       "duration": 4,
-      "cost": 1000.0,
+      "cost": 5000.0,
       "priority": 4,
       "dependencies": ["hacking_phase_1"],
       "requiredResources": ["mentor_pool"]
@@ -77,7 +77,7 @@
       "name": "Top 10 Finalist Stage Demos",
       "agentType": "SPEAKER",
       "duration": 4,
-      "cost": 1500.0,
+      "cost": 6000.0,
       "priority": 5,
       "dependencies": ["mentor_clinics"],
       "requiredResources": ["main_hall"]
@@ -87,7 +87,7 @@
       "name": "Grand Trophy & Prize Distribution",
       "agentType": "VENUE",
       "duration": 2,
-      "cost": 900.0,
+      "cost": 15000.0,
       "priority": 5,
       "dependencies": ["final_pitching"],
       "requiredResources": ["main_hall"]

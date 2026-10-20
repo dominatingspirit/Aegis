@@ -46,12 +46,12 @@ static void loadSymposium(TaskGraph& g, ResourceManager& r) {
     for (const char* res : {"main_hall", "tech_crew", "security_team", "catering_staff"}) {
         r.registerResource(res, 1);
     }
-    g.addTask(makeTask("hall_booking", "VENUE", 4, 1200, 5, {}, {"main_hall"}));
-    g.addTask(makeTask("security_check", "VENUE", 2, 400, 4, {"hall_booking"}, {"security_team"}));
-    g.addTask(makeTask("av_setup", "LOGISTICS", 3, 800, 4, {"hall_booking"}, {"tech_crew"}));
-    g.addTask(makeTask("catering_setup", "LOGISTICS", 2, 1500, 3, {"hall_booking"}, {"catering_staff"}));
-    g.addTask(makeTask("speaker_rehearsal", "SPEAKER", 2, 300, 3, {"av_setup"}, {"tech_crew"}));
-    g.addTask(makeTask("keynote_session", "SPEAKER", 3, 2000, 5, {"speaker_rehearsal"}, {"main_hall"}));
+    g.addTask(makeTask("hall_booking", "VENUE", 4, 8000, 5, {}, {"main_hall"}));
+    g.addTask(makeTask("security_check", "VENUE", 2, 2500, 4, {"hall_booking"}, {"security_team"}));
+    g.addTask(makeTask("av_setup", "LOGISTICS", 3, 6000, 4, {"hall_booking"}, {"tech_crew"}));
+    g.addTask(makeTask("catering_setup", "LOGISTICS", 2, 15000, 3, {"hall_booking"}, {"catering_staff"}));
+    g.addTask(makeTask("speaker_rehearsal", "SPEAKER", 2, 2000, 3, {"av_setup"}, {"tech_crew"}));
+    g.addTask(makeTask("keynote_session", "SPEAKER", 3, 12000, 5, {"speaker_rehearsal"}, {"main_hall"}));
 }
 
 int main() {
@@ -92,7 +92,7 @@ int main() {
     ScheduleMetrics m = strategy->schedule(graph, res);
     CHECK(m.success);
     CHECK(m.makespan == 12);
-    CHECK(m.totalCost == 6200.0);
+    CHECK(m.totalCost == 45500.0);
     CHECK(graph.getTask("hall_booking")->startTime == 0 && graph.getTask("hall_booking")->endTime == 4);
     CHECK(graph.getTask("av_setup")->startTime == 4 && graph.getTask("av_setup")->endTime == 7);
     CHECK(graph.getTask("speaker_rehearsal")->startTime == 7);

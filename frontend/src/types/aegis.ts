@@ -40,6 +40,8 @@ export interface PlanResult {
   tasks: Task[];
   metrics: ScheduleMetrics;
   source: DataSource;
+  maxBudget?: number;
+  maxDeadline?: number;
 }
 
 /** POST /api/recover request body */

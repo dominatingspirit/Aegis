@@ -65,6 +65,13 @@ export default function App() {
         const result = await requestPlan(online, scId, customTasks);
         setSource(result.source);
         setTasks(result.tasks);
+        if (result.maxBudget !== undefined) {
+          setScenario((prev) => ({
+            ...prev,
+            budget: result.maxBudget!,
+            deadline: result.maxDeadline ?? prev.deadline,
+          }));
+        }
         setBaseline({
           makespan: result.metrics.makespan || makespanOf(result.tasks),
           totalCost: result.metrics.totalCost || totalCostOf(result.tasks),

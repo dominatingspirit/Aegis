@@ -3,7 +3,7 @@
   "name": "Tech Symposium 2026",
   "description": "Flagship DTU Tech Symposium with autonomous multi-agent coordination across venue, AV logistics, and keynote speaker tracks.",
   "maxDeadline": 24,
-  "maxBudget": 10000.0,
+  "maxBudget": 60000.0,
   "resources": [
     { "id": "main_hall", "name": "Auditorium Main Hall", "capacity": 1 },
     { "id": "tech_crew", "name": "AV & Rigging Technical Crew", "capacity": 1 },
@@ -17,7 +17,7 @@
       "name": "Main Auditorium Booking",
       "agentType": "VENUE",
       "duration": 4,
-      "cost": 1200.0,
+      "cost": 8000.0,
       "priority": 5,
       "dependencies": [],
       "requiredResources": ["main_hall"]
@@ -27,7 +27,7 @@
       "name": "Security & Fire Safety Clearance",
       "agentType": "VENUE",
       "duration": 2,
-      "cost": 400.0,
+      "cost": 2500.0,
       "priority": 4,
       "dependencies": ["hall_booking"],
       "requiredResources": ["security_team"]
@@ -37,7 +37,7 @@
       "name": "Audio-Visual & Lighting Rigging",
       "agentType": "LOGISTICS",
       "duration": 3,
-      "cost": 800.0,
+      "cost": 6000.0,
       "priority": 4,
       "dependencies": ["hall_booking"],
       "requiredResources": ["tech_crew"]
@@ -47,7 +47,7 @@
       "name": "Buffet & Dining Logistics Setup",
       "agentType": "LOGISTICS",
       "duration": 2,
-      "cost": 1500.0,
+      "cost": 15000.0,
       "priority": 3,
       "dependencies": ["hall_booking"],
       "requiredResources": ["catering_staff"]
@@ -57,7 +57,7 @@
       "name": "Keynote Soundcheck & Dry Run",
       "agentType": "SPEAKER",
       "duration": 2,
-      "cost": 300.0,
+      "cost": 2000.0,
       "priority": 3,
       "dependencies": ["av_setup"],
       "requiredResources": ["tech_crew"]
@@ -67,7 +67,7 @@
       "name": "Keynote Address & Panel Q&A",
       "agentType": "SPEAKER",
       "duration": 3,
-      "cost": 2000.0,
+      "cost": 12000.0,
       "priority": 5,
       "dependencies": ["speaker_rehearsal"],
       "requiredResources": ["main_hall"]

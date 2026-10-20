@@ -17,8 +17,20 @@ namespace httplib {
 struct Request {
     std::string method;
     std::string path;
+    std::string query_string;
     std::unordered_map<std::string, std::string> headers;
     std::string body;
+
+    std::string get_header_value(const std::string& name) const {
+        std::string lower_name = name;
+        for (char& c : lower_name) c = std::tolower(static_cast<unsigned char>(c));
+        for (const auto& pair : headers) {
+            std::string lower_key = pair.first;
+            for (char& c : lower_key) c = std::tolower(static_cast<unsigned char>(c));
+            if (lower_key == lower_name) return pair.second;
+        }
+        return "";
+    }
 };
 
 struct Response {
@@ -59,6 +71,11 @@ private:
             if (!line.empty() && line.back() == '\r') line.pop_back();
             std::istringstream line_stream(line);
             line_stream >> req.method >> req.path;
+            auto qpos = req.path.find('?');
+            if (qpos != std::string::npos) {
+                req.query_string = req.path.substr(qpos + 1);
+                req.path = req.path.substr(0, qpos);
+            }
         }
 
         while (std::getline(stream, line)) {
@@ -83,7 +100,7 @@ private:
         ss << "HTTP/1.1 " << res.status << " " << status_msg << "\r\n";
         ss << "Access-Control-Allow-Origin: *\r\n";
         ss << "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n";
-        ss << "Access-Control-Allow-Headers: Content-Type, Authorization\r\n";
+        ss << "Access-Control-Allow-Headers: Content-Type, Authorization, X-Scenario-Id, x-scenario-id, *\r\n";
         ss << "Content-Length: " << res.body.size() << "\r\n";
 
         for (const auto& h : res.headers) {

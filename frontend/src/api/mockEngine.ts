@@ -32,18 +32,18 @@ const task = (
 
 // The six tasks proposed by Partner 1's VenueAgent, LogisticsAgent and SpeakerAgent.
 const SEED_TASKS: Task[] = [
-  task('hall_booking', 'VENUE', 4, 1200, 5, [], ['main_hall']),
-  task('security_check', 'VENUE', 2, 400, 4, ['hall_booking'], ['security_team']),
-  task('av_setup', 'LOGISTICS', 3, 800, 4, ['hall_booking'], ['tech_crew']),
-  task('catering_setup', 'LOGISTICS', 2, 1500, 3, ['hall_booking'], ['catering_staff']),
-  task('speaker_rehearsal', 'SPEAKER', 2, 300, 3, ['av_setup'], ['tech_crew']),
-  task('keynote_session', 'SPEAKER', 3, 2000, 5, ['speaker_rehearsal'], ['main_hall']),
+  task('hall_booking', 'VENUE', 4, 8000, 5, [], ['main_hall']),
+  task('security_check', 'VENUE', 2, 2500, 4, ['hall_booking'], ['security_team']),
+  task('av_setup', 'LOGISTICS', 3, 6000, 4, ['hall_booking'], ['tech_crew']),
+  task('catering_setup', 'LOGISTICS', 2, 15000, 3, ['hall_booking'], ['catering_staff']),
+  task('speaker_rehearsal', 'SPEAKER', 2, 2000, 3, ['av_setup'], ['tech_crew']),
+  task('keynote_session', 'SPEAKER', 3, 12000, 5, ['speaker_rehearsal'], ['main_hall']),
 ];
 
 export const MOCK_SCENARIO: ScenarioInfo = {
   name: 'Tech Symposium 2026',
-  budget: 7000,
-  deadline: 18,
+  budget: 60000,
+  deadline: 24,
   resources: ['main_hall', 'tech_crew', 'security_team', 'catering_staff'],
 };
 
