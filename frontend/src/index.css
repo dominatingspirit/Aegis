@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   Aegis design system
+   Slate-950 base | emerald = scheduled | amber = replanned | red = failed
+   blue = preserved | slate = pending
+   --------------------------------------------------------------------------- */
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-200 antialiased;
+    font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background-image:
+      radial-gradient(ellipse at top, rgba(16, 185, 129, 0.07), transparent 55%),
+      linear-gradient(rgba(148, 163, 184, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.045) 1px, transparent 1px);
+    background-size: 100% 100%, 32px 32px, 32px 32px;
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    @apply bg-emerald-500/30 text-emerald-100;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-950;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-slate-700;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-600;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur;
+  }
+
+  .eyebrow {
+    @apply font-mono text-[10px] uppercase tracking-[0.2em] text-slate-500;
+  }
+
+  .btn {
+    @apply inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-medium transition
+      focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60
+      disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .btn-ghost {
+    @apply btn border-slate-700 bg-slate-900/60 text-slate-300 hover:border-slate-500 hover:text-white;
+  }
+
+  .btn-danger {
+    @apply btn border-red-500/50 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:text-red-200;
+  }
+
+  .btn-primary {
+    @apply btn border-emerald-500/50 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 hover:text-emerald-200;
+  }
+}

@@ -1,3 +1,4 @@
+# C++ build output
 build/
 bin/
 *.exe
@@ -7,8 +8,17 @@ bin/
 *.dll
 *.so
 *.dylib
+test_recovery
+test_recovery.exe
+
+# Frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+*.log
+
+# IDE & OS
 .vscode/
 .idea/
-node_modules/
-dist/
 .DS_Store
