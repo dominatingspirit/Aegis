@@ -1,0 +1,14 @@
+build/
+bin/
+*.exe
+*.o
+*.obj
+*.a
+*.dll
+*.so
+*.dylib
+.vscode/
+.idea/
+node_modules/
+dist/
+.DS_Store
